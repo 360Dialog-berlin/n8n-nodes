@@ -1,0 +1,11 @@
+# Auto-rendered by .github/workflows/sync-codeowners.yml
+# Source of truth: teams/*.yml in 360Dialog-berlin/.github.
+# To opt out of auto-sync, remove the marker line above and the
+# workflow will leave this file alone on subsequent runs.
+
+* @360Dialog-berlin/backend
+
+# Required by policy / Lint dotgithub_infra_codeowners — gates
+# governance config (CI workflows, dependabot, CODEOWNERS itself)
+# to the infrastructure team. Do not remove.
+.github/  @360Dialog-berlin/infrastructure

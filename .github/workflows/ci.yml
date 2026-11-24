@@ -1,0 +1,27 @@
+name: ci
+
+# No shared pipeline (ci-pipeline=none), so policy-checks and security-checks
+# are called directly and emit the bare `policy / Lint` / `security / Scan`
+# contexts. The required-context override lives in .github -> repos/<repo>.yml.
+on:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Required of every reusable-workflow caller by caller_permissions.py; each
+# callee's own declaration sets its token.
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  policy:
+    uses: 360Dialog-berlin/workflows/.github/workflows/policy-checks.yml@7.0.0
+    secrets: inherit
+
+  security:
+    # No secrets: the only one security-checks uses is for Trivy IaC, which is off.
+    uses: 360Dialog-berlin/workflows/.github/workflows/security-checks.yml@7.0.0

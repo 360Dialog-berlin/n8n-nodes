@@ -1,0 +1,60 @@
+{
+  "name": "@360dialog/n8n-nodes-360dialog",
+  "version": "1.0.0",
+  "description": "360dialog WhatsApp Messaging API node for n8n: send text, media, interactive and template messages, mark messages as read, download inbound media, and trigger workflows on inbound messages and status updates",
+  "license": "MIT",
+  "homepage": "https://github.com/360Dialog-berlin/n8n-nodes",
+  "keywords": [
+    "n8n-community-node-package",
+    "360dialog",
+    "whatsapp",
+    "whatsapp-business-api",
+    "messaging",
+    "whatsapp-cloud-api",
+    "n8n"
+  ],
+  "author": {
+    "name": "360dialog",
+    "email": "support@360dialog.com",
+    "url": "https://www.360dialog.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/360Dialog-berlin/n8n-nodes.git"
+  },
+  "scripts": {
+    "build": "n8n-node build",
+    "build:watch": "tsc --watch",
+    "dev": "n8n-node dev",
+    "lint": "n8n-node lint",
+    "lint:fix": "n8n-node lint --fix",
+    "release": "n8n-node release",
+    "prepublishOnly": "n8n-node prerelease",
+    "test": "vitest run"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "strict": true,
+    "credentials": [
+      "dist/credentials/Dialog360Api.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/Dialog360/Dialog360.node.js",
+      "dist/nodes/Dialog360/Dialog360Trigger.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@n8n/node-cli": "*",
+    "eslint": "9.32.0",
+    "prettier": "3.6.2",
+    "release-it": "^19.0.4",
+    "typescript": "5.9.2",
+    "vitest": "^4.1.10"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}

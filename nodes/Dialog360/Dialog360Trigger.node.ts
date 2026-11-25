@@ -22,7 +22,6 @@ const DEDUPE_MAX_ENTRIES = 500;
 
 const digits = (v: unknown): string => String(v ?? '').replace(/\D/g, '');
 
-// eslint-disable-next-line @n8n/community-nodes/node-usable-as-tool -- trigger nodes cannot be AI agent tools; the property only accepts `true`
 export class Dialog360Trigger implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: '360dialog Trigger',
@@ -149,8 +148,9 @@ export class Dialog360Trigger implements INodeType {
 						await dialog360ApiRequest.call(this, 'POST', '/v1/configs/webhook', {
 							url: previousUrl,
 						});
-					} catch {
-						// Best effort: never block workflow deactivation on a restore failure.
+					} catch (error) {
+						// Never block workflow deactivation on a restore failure
+						this.logger.warn(`Could not restore the previous webhook URL: ${(error as Error).message}`);
 					}
 					delete staticData.previousWebhookUrl;
 				}

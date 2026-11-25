@@ -1,4 +1,3 @@
-/* eslint-disable @n8n/community-nodes/no-restricted-imports -- vitest is a devDependency; tests are excluded from the published package (files: ["dist"]) */
 import type { IDataObject, IWebhookFunctions } from 'n8n-workflow';
 import { createHmac } from 'node:crypto';
 import { describe, expect, it } from 'vitest';

@@ -1,0 +1,18 @@
+{
+	"node": "@360dialog/n8n-nodes-360dialog.dialog360Trigger",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Communication"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://docs.360dialog.com/docs/messaging-api"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/360Dialog-berlin/n8n-nodes"
+			}
+		]
+	}
+}

@@ -1,0 +1,19 @@
+[[IgnoredVulns]]
+id = "GHSA-mrhx-c7xc-m3w5"
+reason = "zod 3 is a dev-only dependency of n8n-workflow and @n8n/node-cli with no fixed 3.x release. The published package has no dependencies"
+
+[[IgnoredVulns]]
+id = "CVE-2023-54404"
+reason = "Alias of GHSA-mrhx-c7xc-m3w5"
+
+[[IgnoredVulns]]
+id = "GHSA-w5hq-g745-h8pq"
+reason = "uuid 10 is a dev-only dependency of @n8n/node-cli through langchain with no fixed 10.x release. The published package has no dependencies"
+
+[[IgnoredVulns]]
+id = "CVE-2026-41907"
+reason = "Alias of GHSA-w5hq-g745-h8pq"
+
+[[IgnoredVulns]]
+id = "CVE-2026-41988"
+reason = "Alias of GHSA-w5hq-g745-h8pq"

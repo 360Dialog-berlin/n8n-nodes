@@ -6,7 +6,7 @@ on:
 jobs:
   publish:
     if: github.ref == 'refs/heads/main'
-    runs-on: gha-runner
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
@@ -18,5 +18,6 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
       - run: npm ci
+      - run: npm test
       # In CI, n8n-node release runs lint and build, then npm publish with provenance
       - run: npm run release

@@ -19,12 +19,12 @@ permissions:
 
 jobs:
   policy:
-    uses: 360Dialog-berlin/workflows/.github/workflows/policy-checks.yml@7.0.0
+    uses: 360Dialog-berlin/workflows/.github/workflows/policy-checks.yml@7.0.1
     secrets: inherit
 
   security:
     # No secrets: the only one security-checks uses is for Trivy IaC, which is off.
-    uses: 360Dialog-berlin/workflows/.github/workflows/security-checks.yml@7.0.0
+    uses: 360Dialog-berlin/workflows/.github/workflows/security-checks.yml@7.0.1
 
   build:
     runs-on: gha-runner

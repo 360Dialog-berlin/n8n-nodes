@@ -1,8 +1,8 @@
 name: ci
 
-# No shared pipeline (ci-pipeline=none), so policy-checks and security-checks
-# are called directly and emit the bare `policy / Lint` / `security / Scan`
-# contexts. The required-context override lives in .github -> repos/<repo>.yml.
+# Public repo: it cannot call the private 360Dialog-berlin/workflows reusables,
+# so the checks run inline. Secret scanning, push protection and CodeQL are
+# GitHub-native repo settings. Required checks: .github -> repos/n8n-nodes.yml.
 on:
   pull_request:
 
@@ -10,28 +10,82 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-# Required of every reusable-workflow caller by caller_permissions.py; each
-# callee's own declaration sets its token.
 permissions:
-  contents: write
-  pull-requests: write
-  id-token: write
+  contents: read
 
 jobs:
-  policy:
-    uses: 360Dialog-berlin/workflows/.github/workflows/policy-checks.yml@7.0.1
-    secrets: inherit
-
-  security:
-    # No secrets: the only one security-checks uses is for Trivy IaC, which is off.
-    uses: 360Dialog-berlin/workflows/.github/workflows/security-checks.yml@7.0.1
-
-  build:
-    runs-on: gha-runner
-    permissions:
-      contents: read
+  commit-email:
+    name: Commit Email
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # Same rule as the Commit Email Policy step in policy-checks.yml@7.0.0.
+      - name: Commit Email Policy
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          ALLOWED_BOTS: >-
+            github-actions[bot]@users.noreply.github.com
+            49699333+dependabot[bot]@users.noreply.github.com
+            noreply@github.com
+            282175861+360dialog-release-cutter[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail -f
+          bad=""
+          for sha in $(git rev-list "$BASE_SHA..$HEAD_SHA"); do
+            for email in $(git log -1 --format='%ae %ce' "$sha"); do
+              case " $ALLOWED_BOTS " in *" $email "*) continue ;; esac
+              [[ "$email" == *@360dialog.com ]] && continue
+              bad+=$'\n'"  - ${sha:0:10} $email"
+            done
+          done
+          if [ -n "$bad" ]; then
+            echo "FAIL: commits with disallowed email addresses:$bad"
+            echo "Fix: git config user.email your.name@360dialog.com, then amend or rebase."
+            exit 1
+          fi
+          echo "All commits use allowed email addresses."
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/dependency-review-action@bbc44d14a204704ccc493733616cd1e93a0321ec # v5.0.1
+
+  # PR-time secret gate, as Gitleaks did in security-checks.yml: push
+  # protection is push-time only and covers fewer patterns.
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    env:
+      GITLEAKS_VERSION: 8.30.1
+      GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Gitleaks
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          curl -sSfL -o "$RUNNER_TEMP/gitleaks.tgz" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/gitleaks.tgz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/gitleaks.tgz" -C "$RUNNER_TEMP" gitleaks
+          "$RUNNER_TEMP/gitleaks" git --log-opts="${BASE_SHA}..${HEAD_SHA}" --redact --no-banner .
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
